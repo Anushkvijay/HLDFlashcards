@@ -1,0 +1,705 @@
+Here's a comprehensive prompt you can feed into **Claude 4 Sonnet, GPT-5.5, Gemini 2.5 Pro, or DeepSeek R1** to generate an enterprise-grade design document.
+
+---
+
+# Prompt
+
+You are a **Staff Software Engineer** and **Principal System Architect** at Google with expertise in React, Progressive Web Apps (PWAs), AI, Retrieval-Augmented Generation (RAG), LLMs, Chrome Apps, and scalable distributed systems.
+
+Design a production-ready application from scratch.
+
+---
+
+# Project
+
+Design a **Flashcard Revision Web Application** similar to **Inshorts**, but for interview preparation.
+
+The application should be installable as a **Progressive Web App (PWA)** and work like a Chrome App.
+
+Users continuously swipe through concise flashcards while revising interview topics.
+
+---
+
+# Functional Requirements
+
+## 1. AI Flashcard Generation
+
+Users provide a **HelloInterview URL**.
+
+Example:
+
+[https://www.hellointerview.com/learn/system-design/in-a-hurry/introduction](https://www.hellointerview.com/learn/system-design/in-a-hurry/introduction)
+
+The application should
+
+* scrape or extract the content
+* identify headings
+* summarize intelligently
+* generate revision-oriented flashcards
+
+Each flashcard should contain
+
+* concise explanation
+* key takeaways
+* interview tips
+* common mistakes
+* memorable analogy if applicable
+
+Cards should not be paragraph-heavy.
+
+Target reading time:
+
+15–30 seconds.
+
+---
+
+## 2. AI Generated Images
+
+If the topic benefits from visualization,
+
+Automatically generate or include
+
+* architecture diagrams
+* flow charts
+* sequence diagrams
+* timelines
+* comparison tables
+* memory tricks
+
+Examples
+
+Load Balancer
+
+Cache
+
+CAP theorem
+
+Kafka
+
+Consensus
+
+Replication
+
+Distributed Transactions
+
+Microservices
+
+etc.
+
+Use Mermaid diagrams whenever possible.
+
+If an LLM supports SVG generation, explain that architecture.
+
+---
+
+## 3. Progress Tracking
+
+Support
+
+* completed cards
+* bookmarked cards
+* starred cards
+* difficult cards
+* recently viewed
+* continue where user left off
+
+Progress should sync across devices.
+
+---
+
+## 4. Flashcard Experience
+
+Like Inshorts
+
+* swipe left/right
+* keyboard shortcuts
+* mobile friendly
+* infinite scrolling
+* dark mode
+* offline support
+* smooth animations
+
+---
+
+## 5. Search
+
+Allow searching
+
+* by topic
+* by tags
+* by keyword
+* by difficulty
+* by source URL
+
+---
+
+## 6. Organization
+
+Support
+
+Collections
+
+Example
+
+System Design
+
+Behavioral
+
+Networking
+
+Operating Systems
+
+Databases
+
+Low Level Design
+
+High Level Design
+
+Java
+
+C#
+
+Python
+
+React
+
+Angular
+
+Machine Learning
+
+Cloud
+
+Users can create their own collections.
+
+---
+
+## 7. AI Features
+
+Allow users to
+
+Regenerate card
+
+Make shorter
+
+Make more detailed
+
+Generate quiz
+
+Generate MCQs
+
+Generate interview questions
+
+Explain like I'm five
+
+Explain deeply
+
+Generate mnemonics
+
+Generate analogies
+
+Generate code examples
+
+---
+
+## 8. Offline Mode
+
+The application should work without internet after installation.
+
+Support
+
+IndexedDB
+
+Background Sync
+
+Service Workers
+
+Offline cache
+
+---
+
+## 9. Authentication
+
+Support
+
+Google OAuth
+
+GitHub OAuth
+
+Email/password
+
+Guest mode
+
+---
+
+## 10. Analytics
+
+Track
+
+Revision streak
+
+Cards reviewed
+
+Daily revision time
+
+Weak topics
+
+Learning progress
+
+Heatmap
+
+---
+
+# AI Stack
+
+Use only **Open Source LLMs**.
+
+Compare and recommend among
+
+Llama 3.3
+
+Qwen 3
+
+DeepSeek
+
+Mistral
+
+Gemma 3
+
+Phi-4
+
+Explain
+
+* quality
+* latency
+* cost
+* VRAM
+* licensing
+* deployment
+
+Recommend the best model for flashcard generation.
+
+Also recommend embedding models.
+
+Example
+
+BGE
+
+E5
+
+Nomic Embed
+
+Jina
+
+Explain vector database choices
+
+pgvector
+
+Qdrant
+
+Milvus
+
+Chroma
+
+---
+
+# Technical Requirements
+
+Prefer
+
+Frontend
+
+* React
+* TypeScript
+* Vite
+* TailwindCSS
+* Framer Motion
+* TanStack Query
+
+Backend
+
+* ASP.NET Core (.NET 9)
+* Clean Architecture
+* CQRS
+* MediatR
+* FluentValidation
+
+Database
+
+PostgreSQL
+
+Redis
+
+Object Storage
+
+MinIO
+
+Queue
+
+RabbitMQ
+
+or Kafka
+
+Explain why.
+
+---
+
+# AI Pipeline
+
+Explain the complete workflow
+
+User enters URL
+
+↓
+
+Crawler
+
+↓
+
+Content extraction
+
+↓
+
+Cleaning
+
+↓
+
+Chunking
+
+↓
+
+Prompt Engineering
+
+↓
+
+LLM
+
+↓
+
+Flashcard generation
+
+↓
+
+Image generation
+
+↓
+
+Storage
+
+↓
+
+Revision
+
+---
+
+# API Design
+
+Design REST APIs
+
+Include
+
+request
+
+response
+
+status codes
+
+authentication
+
+pagination
+
+error handling
+
+---
+
+# Database Design
+
+Provide
+
+ER Diagram
+
+Tables
+
+Indexes
+
+Relationships
+
+Primary Keys
+
+Foreign Keys
+
+Partitioning
+
+Caching strategy
+
+---
+
+# High Level Design
+
+Provide
+
+System Context Diagram
+
+Container Diagram
+
+Component Diagram
+
+Sequence Diagrams
+
+Deployment Diagram
+
+Data Flow Diagram
+
+Mermaid diagrams for everything.
+
+---
+
+# Low Level Design
+
+Design
+
+Flashcard Service
+
+AI Service
+
+URL Scraper
+
+Prompt Builder
+
+Progress Service
+
+Search Service
+
+Authentication Service
+
+Image Service
+
+Notification Service
+
+Explain responsibilities of each class.
+
+Use UML Class Diagrams.
+
+---
+
+# Design Patterns
+
+Explain where and why to use
+
+Repository
+
+Factory
+
+Builder
+
+Strategy
+
+Observer
+
+Decorator
+
+Command
+
+Mediator
+
+Adapter
+
+Circuit Breaker
+
+Retry
+
+Outbox Pattern
+
+Saga (if applicable)
+
+---
+
+# Scalability
+
+Explain
+
+Horizontal scaling
+
+Caching
+
+CDN
+
+Rate limiting
+
+Message queues
+
+Background workers
+
+Async processing
+
+Read replicas
+
+Connection pooling
+
+Redis caching
+
+API Gateway
+
+Reverse Proxy
+
+---
+
+# Security
+
+Explain
+
+OAuth
+
+JWT
+
+Refresh Tokens
+
+CSRF
+
+XSS
+
+CSP
+
+Rate limiting
+
+Input validation
+
+Prompt Injection prevention
+
+LLM safety
+
+Secrets management
+
+Encryption
+
+---
+
+# Monitoring
+
+Use
+
+OpenTelemetry
+
+Prometheus
+
+Grafana
+
+Loki
+
+Jaeger
+
+Explain
+
+metrics
+
+logs
+
+distributed tracing
+
+---
+
+# Deployment
+
+Design deployment for
+
+Docker
+
+Docker Compose
+
+Kubernetes
+
+NGINX
+
+GitHub Actions
+
+Azure
+
+AWS
+
+Cloudflare
+
+---
+
+# Folder Structure
+
+Generate an enterprise-level folder structure for both
+
+React frontend
+
+ASP.NET backend
+
+following Clean Architecture.
+
+---
+
+# Non Functional Requirements
+
+Discuss
+
+Availability
+
+Latency
+
+Performance
+
+Reliability
+
+Maintainability
+
+Extensibility
+
+Observability
+
+Cost
+
+Offline capability
+
+Accessibility
+
+---
+
+# Future Enhancements
+
+Suggest features such as
+
+* spaced repetition (SM-2/FSRS)
+* AI tutor/chat
+* voice narration
+* flashcard sharing
+* collaborative decks
+* interview simulation
+* browser extension
+* PDF import
+* YouTube transcript import
+* GitHub repository summarization
+* LeetCode solution summarization
+* personalized learning paths
+
+---
+
+# Deliverables
+
+Produce a professional software architecture document with the following sections:
+
+1. Executive Summary
+2. Functional Requirements
+3. Non-Functional Requirements
+4. Technology Stack (with rationale)
+5. High-Level Architecture (HLD)
+6. Low-Level Design (LLD)
+7. Database Design
+8. API Design
+9. AI Pipeline Design
+10. Security Architecture
+11. Scalability Strategy
+12. Deployment Architecture
+13. Monitoring & Logging
+14. Sequence Diagrams
+15. Mermaid Diagrams
+16. UML Class Diagrams
+17. Folder Structure
+18. Design Patterns Used
+19. Trade-offs and Alternatives
+20. Risks and Mitigations
+21. Future Roadmap
+
+The output should be detailed enough that a team of engineers could immediately begin implementation, with all diagrams rendered in Mermaid syntax and architecture decisions justified using engineering trade-offs.

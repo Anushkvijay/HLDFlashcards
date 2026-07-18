@@ -1,0 +1,40 @@
+// MVP schema — SQLite. Swap `provider = "postgresql"` + DATABASE_URL for the full app.
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Deck {
+  id        String   @id
+  title     String
+  sourceUrl String
+  status    String   @default("pending") // pending | ready | failed
+  createdAt DateTime @default(now())
+  cards     Card[]
+
+  @@index([sourceUrl])
+}
+
+model Card {
+  id             String   @id
+  deckId         String
+  deck           Deck     @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  position       Int
+  title          String
+  explanation    String
+  keyTakeaways   String // JSON array
+  interviewTips  String // JSON array
+  commonMistakes String // JSON array
+  analogy        String?
+  difficulty     String   @default("medium")
+  tags           String   @default("[]") // JSON array
+  readingSeconds Int      @default(20)
+  status         String   @default("new") // new | completed | bookmarked | difficult
+
+  @@index([deckId, position])
+  @@index([difficulty])
+}

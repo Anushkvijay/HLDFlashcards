@@ -1,0 +1,17 @@
+{
+  "name": "flashswipe",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Flashcard revision PWA for interview prep (Inshorts-style)",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev -w @flashswipe/api",
+    "dev:web": "npm run dev -w @flashswipe/web",
+    "build": "npm run build -w @flashswipe/shared && npm run build -w @flashswipe/api && npm run build -w @flashswipe/web",
+    "db:push": "npm run db:push -w @flashswipe/api",
+    "db:seed": "npm run seed -w @flashswipe/api"
+  }
+}
