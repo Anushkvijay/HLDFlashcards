@@ -4,6 +4,7 @@ Flashcard revision PWA for interview prep — Inshorts-style. Paste an interview
 get AI-generated swipeable revision cards.
 
 - **Design doc:** [`docs/DESIGN.md`](docs/DESIGN.md)
+- **Deploy (Vercel):** [`docs/DEPLOY.md`](docs/DEPLOY.md)
 - **Stack:** React + Vite + Tailwind + Framer Motion (PWA) · Node + Fastify + Prisma + SQLite
 - **AI:** pluggable `AIProvider` — `mock` (default, no deps) or `ollama` (open-source LLM)
 

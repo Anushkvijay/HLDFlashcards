@@ -1,17 +1,7 @@
-import Fastify from "fastify";
-import cors from "@fastify/cors";
-import rateLimit from "@fastify/rate-limit";
+import { buildApp } from "./app.js";
 import { config } from "./lib/config.js";
-import { deckRoutes } from "./routes/decks.js";
 
-const app = Fastify({ logger: true });
-
-await app.register(cors, { origin: true });
-await app.register(rateLimit, { max: 60, timeWindow: "1 minute" });
-
-app.get("/api/health", async () => ({ ok: true, aiProvider: config.aiProvider }));
-
-await app.register(deckRoutes);
+const app = await buildApp();
 
 try {
   await app.listen({ port: config.port, host: "0.0.0.0" });

@@ -1,10 +1,12 @@
-// MVP schema — SQLite. Swap `provider = "postgresql"` + DATABASE_URL for the full app.
+// Postgres (Neon) for cloud + local. Set DATABASE_URL to your connection string.
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // "native" for local dev; the rhel target is Vercel's serverless runtime.
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 

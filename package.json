@@ -11,6 +11,8 @@
     "dev:api": "npm run dev -w @flashswipe/api",
     "dev:web": "npm run dev -w @flashswipe/web",
     "build": "npm run build -w @flashswipe/shared && npm run build -w @flashswipe/api && npm run build -w @flashswipe/web",
+    "build:web": "npm run build -w @flashswipe/shared && npm run build -w @flashswipe/web",
+    "vercel-build": "prisma generate --schema apps/api/prisma/schema.prisma && npm run build",
     "db:push": "npm run db:push -w @flashswipe/api",
     "db:seed": "npm run seed -w @flashswipe/api"
   }
