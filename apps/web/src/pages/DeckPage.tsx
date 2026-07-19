@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
+import { animate, motion, useMotionValue, useTransform } from "framer-motion";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Card, CardStatus, Deck } from "@flashswipe/shared";
+import type { CardStatus, Deck } from "@flashswipe/shared";
 import { api } from "../lib/api";
 import { FlashCard } from "../components/FlashCard";
 
@@ -13,9 +13,14 @@ export function DeckPage() {
 
   const cards = deck.data?.cards ?? [];
   const [index, setIndex] = useState(0);
-  const [dir, setDir] = useState(1); // 1 = next (up), -1 = prev (down)
 
   const current = cards[index];
+
+  // horizontal drag state — Tinder/Bumble style
+  const x = useMotionValue(0);
+  const rotate = useTransform(x, [-240, 240], [-16, 16]);
+  const likeOpacity = useTransform(x, [30, 130], [0, 1]);
+  const reviewOpacity = useTransform(x, [-130, -30], [1, 0]);
 
   const mark = useCallback(
     (status: CardStatus) => {
@@ -33,33 +38,50 @@ export function DeckPage() {
     [current, id, qc],
   );
 
-  const go = useCallback(
-    (delta: number) => {
-      setIndex((i) => {
-        const next = Math.min(cards.length - 1, Math.max(0, i + delta));
-        if (delta > 0 && next !== i) {
-          // mark the card we're leaving as completed (if still new)
-          const leaving = cards[i];
-          if (leaving && leaving.status === "new") mark("completed");
-        }
-        setDir(delta >= 0 ? 1 : -1);
-        return next;
+  const hasNext = index < cards.length - 1;
+  const hasPrev = index > 0;
+
+  // advance to next card, marking the one we're leaving
+  const next = useCallback(
+    (leaving: CardStatus) => {
+      if (current && current.status === "new") mark(leaving);
+      setIndex((i) => Math.min(cards.length - 1, i + 1));
+    },
+    [current, cards.length, mark],
+  );
+
+  const prev = useCallback(() => setIndex((i) => Math.max(0, i - 1)), []);
+
+  // fling the card off-screen, then advance. dir: 1 = right (know it), -1 = left (review)
+  const fling = useCallback(
+    (dir: 1 | -1) => {
+      if (!hasNext) {
+        // last card — nothing to advance to; snap back and just mark
+        animate(x, 0, { type: "spring", stiffness: 300, damping: 30 });
+        if (current && current.status === "new") mark(dir > 0 ? "completed" : "difficult");
+        return;
+      }
+      const w = typeof window !== "undefined" ? window.innerWidth : 500;
+      animate(x, dir * (w + 100), { duration: 0.28, ease: "easeOut" }).then(() => {
+        x.set(0);
+        next(dir > 0 ? "completed" : "difficult");
       });
     },
-    [cards, mark],
+    [x, hasNext, next, current, mark],
   );
 
   // keyboard shortcuts
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowUp" || e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); go(1); }
-      else if (e.key === "ArrowDown" || e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "ArrowUp") { e.preventDefault(); fling(1); }
+      else if (e.key === "ArrowLeft") { e.preventDefault(); fling(-1); }
+      else if (e.key === "ArrowDown") { e.preventDefault(); prev(); }
       else if (e.key.toLowerCase() === "b") mark("bookmarked");
       else if (e.key.toLowerCase() === "d") mark("difficult");
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [go, mark]);
+  }, [fling, prev, mark]);
 
   if (deck.isLoading) return <Centered>Loading deck…</Centered>;
   if (deck.isError || !deck.data) return <Centered>Could not load this deck.</Centered>;
@@ -71,49 +93,68 @@ export function DeckPage() {
     <div className="mx-auto flex h-[100dvh] max-w-xl flex-col px-4 py-4">
       {/* top bar */}
       <div className="mb-3 flex items-center gap-3">
-        <Link to="/" className="text-slate-400 hover:text-slate-200">←</Link>
+        <Link to="/" className="text-zinc-400 hover:text-zinc-200">←</Link>
         <div className="min-w-0 flex-1">
           <div className="truncate text-sm font-medium">{deck.data.title}</div>
-          <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
-            <div className="h-full rounded-full bg-indigo-500 transition-all" style={{ width: `${progress}%` }} />
+          <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800">
+            <div className="h-full rounded-full bg-teal-500 transition-all" style={{ width: `${progress}%` }} />
           </div>
         </div>
-        <span className="text-xs text-slate-400">{index + 1}/{cards.length}</span>
+        <span className="text-xs text-zinc-400">{index + 1}/{cards.length}</span>
       </div>
 
       {/* swipe area */}
       <div className="relative min-h-0 flex-1">
-        <AnimatePresence custom={dir} initial={false} mode="popLayout">
+        {/* peek of the next card underneath, for depth */}
+        {hasNext && (
+          <div className="absolute inset-0 scale-[0.96] opacity-60">
+            <FlashCard card={cards[index + 1]} />
+          </div>
+        )}
+
+        <motion.div
+          key={current.id}
+          className="absolute inset-0"
+          style={{ x, rotate, touchAction: "pan-y" }}
+          initial={{ scale: 0.96, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 320, damping: 30 }}
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.6}
+          onDragEnd={(_, info) => {
+            if (info.offset.x > 100 || info.velocity.x > 500) fling(1);
+            else if (info.offset.x < -100 || info.velocity.x < -500) fling(-1);
+            else animate(x, 0, { type: "spring", stiffness: 300, damping: 30 });
+          }}
+        >
+          {/* swipe badges */}
           <motion.div
-            key={current.id}
-            custom={dir}
-            className="absolute inset-0"
-            initial={{ y: dir > 0 ? "100%" : "-100%", opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: dir > 0 ? "-100%" : "100%", opacity: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 32 }}
-            drag="y"
-            dragConstraints={{ top: 0, bottom: 0 }}
-            dragElastic={0.4}
-            onDragEnd={(_, info) => {
-              if (info.offset.y < -80) go(1);
-              else if (info.offset.y > 80) go(-1);
-            }}
+            style={{ opacity: likeOpacity }}
+            className="pointer-events-none absolute left-5 top-5 z-10 rotate-[-12deg] rounded-lg border-2 border-emerald-500 px-3 py-1 text-lg font-extrabold uppercase tracking-wider text-emerald-500"
           >
-            <FlashCard card={current} />
+            Know it
           </motion.div>
-        </AnimatePresence>
+          <motion.div
+            style={{ opacity: reviewOpacity }}
+            className="pointer-events-none absolute right-5 top-5 z-10 rotate-[12deg] rounded-lg border-2 border-amber-500 px-3 py-1 text-lg font-extrabold uppercase tracking-wider text-amber-500"
+          >
+            Review
+          </motion.div>
+
+          <FlashCard card={current} />
+        </motion.div>
       </div>
 
       {/* actions */}
       <div className="mt-3 flex items-center justify-center gap-2">
-        <ActionBtn onClick={() => go(-1)} disabled={index === 0}>↓ Prev</ActionBtn>
-        <ActionBtn onClick={() => mark("bookmarked")} active={current.status === "bookmarked"}>🔖 Bookmark</ActionBtn>
-        <ActionBtn onClick={() => mark("difficult")} active={current.status === "difficult"}>🔥 Hard</ActionBtn>
-        <ActionBtn onClick={() => go(1)} disabled={index === cards.length - 1}>↑ Next</ActionBtn>
+        <ActionBtn onClick={prev} disabled={!hasPrev}>← Prev</ActionBtn>
+        <ActionBtn onClick={() => mark("bookmarked")} active={current.status === "bookmarked"}>🔖</ActionBtn>
+        <ActionBtn onClick={() => fling(-1)}>🔥 Review</ActionBtn>
+        <ActionBtn onClick={() => fling(1)}>✓ Know it</ActionBtn>
       </div>
-      <p className="mt-2 text-center text-xs text-slate-400">
-        Swipe up/down · ↑↓ keys · B bookmark · D hard
+      <p className="mt-2 text-center text-xs text-zinc-400">
+        Swipe → know it · ← review · ↑↓ keys · B bookmark
       </p>
     </div>
   );
@@ -136,8 +177,8 @@ function ActionBtn({
       disabled={disabled}
       className={`rounded-lg border px-3 py-2 text-sm transition disabled:opacity-30 ${
         active
-          ? "border-indigo-500 bg-indigo-500/15 text-indigo-400"
-          : "border-slate-200 hover:border-slate-400 dark:border-slate-800 dark:hover:border-slate-600"
+          ? "border-teal-500 bg-teal-500/15 text-teal-400"
+          : "border-zinc-200 hover:border-zinc-400 dark:border-zinc-800 dark:hover:border-zinc-600"
       }`}
     >
       {children}
@@ -147,11 +188,11 @@ function ActionBtn({
 
 function Centered({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-[100dvh] items-center justify-center px-4 text-center text-slate-400">
+    <div className="flex h-[100dvh] items-center justify-center px-4 text-center text-zinc-400">
       <div>
         {children}
         <div className="mt-3">
-          <Link to="/" className="text-indigo-400">← Back home</Link>
+          <Link to="/" className="text-teal-400">← Back home</Link>
         </div>
       </div>
     </div>

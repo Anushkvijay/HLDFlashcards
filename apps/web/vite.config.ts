@@ -12,8 +12,8 @@ export default defineConfig({
         name: "FlashSwipe — Interview Revision",
         short_name: "FlashSwipe",
         description: "Swipe through AI flashcards for interview prep.",
-        theme_color: "#0f172a",
-        background_color: "#0f172a",
+        theme_color: "#09090b",
+        background_color: "#09090b",
         display: "standalone",
         start_url: "/",
         icons: [
